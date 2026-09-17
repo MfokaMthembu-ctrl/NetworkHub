@@ -24,7 +24,8 @@ public class Login {
      * immediately followed by a number that is no more than ten digits long.
      * Example of a valid number: +27838968976
      */
-    
+    private static final Pattern CELL_PHONE_PATTERN =
+            Pattern.compile("^\\+[0-9]{1,3}[0-9]{1,10}$");
 
     public Login(String firstName, String lastName, String username,
                  String password, String cellPhoneNumber) {
