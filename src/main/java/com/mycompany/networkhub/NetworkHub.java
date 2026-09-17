@@ -64,7 +64,7 @@ public class NetworkHub {
         System.out.print("Please enter your username: ");
         String loginUsername = input.nextLine();
 
-        System.out.print("Please enter your password: ")
+        System.out.print("Please enter your password: ");
         String loginPassword = input.nextLine();
 
         boolean loginSuccessful = login.loginUser(loginUsername, loginPassword);
