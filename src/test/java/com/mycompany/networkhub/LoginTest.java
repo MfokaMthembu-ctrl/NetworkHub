@@ -72,7 +72,7 @@ public class LoginTest {
     public void testLoginSuccessfulMessage() {
         Login login = new Login("Sbaluleko", "Mthembu", "kyl_1",
                 "Ch&&sec@ke99!", "+27838968976");
-        assertEquals("Welcome Kyle, Smith it is great to see you again.",
+        assertEquals("Welcome Sbaluleko, Mthembu it is great to see you again.",
                 login.returnLoginStatus(true));
     }
 
