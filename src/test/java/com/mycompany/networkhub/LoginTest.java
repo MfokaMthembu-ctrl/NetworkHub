@@ -95,7 +95,7 @@ public class LoginTest {
 
     @Test
     public void testLoginFailed() {
-        Login login = new Login("Kyle", "Smith", "kyl_1",
+        Login login = new Login("Sbaluleko", "Mthembu", "kyl_1",
                 "Ch&&sec@ke99!", "+27838968976");
         assertFalse(login.loginUser("kyl_1", "wrongPassword1!"));
     }
