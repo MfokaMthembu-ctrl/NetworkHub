@@ -148,6 +148,14 @@ public class Message {
     public boolean checkMessageID() {
         return messageID != null && messageID.length() <= MAX_ID_LENGTH;
     }
+    
+        /**
+     * Returns the confirmation text the brief requires once a message ID
+     * has been created: "Message ID generated: <Message ID>".
+     */
+    public String returnMessageIDMessage() {
+        return "Message ID generated: " + messageID;
+    }
 
     /**
      * Checks that the recipient's cell number starts with an
