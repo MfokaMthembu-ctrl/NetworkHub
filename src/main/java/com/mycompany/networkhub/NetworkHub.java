@@ -7,17 +7,21 @@ package com.mycompany.networkhub;
 import java.util.Scanner;
 
 /**
+ * Driver class for the application. Covers two parts of the brief:
+ *
+ *   Part 1 - registering an account and logging in.
+ *   Part 2 - once logged in, the QuickChat menu that lets the user
+ *            compose, send, disregard or store messages.
  *
  * @author Student
  */
-
 public class NetworkHub {
 
     public static void main(String[] args) {
         Scanner input = new Scanner(System.in);
 
         // =====================================================
-        //  PART 1 - REGISTRATION AND LOGIN (unchanged)
+        //  PART 1 - REGISTRATION AND LOGIN
         // =====================================================
 
         System.out.println("=== Register a new account ===");
@@ -75,9 +79,8 @@ public class NetworkHub {
         boolean loginSuccessful = login.loginUser(loginUsername, loginPassword);
         System.out.println(login.returnLoginStatus(loginSuccessful));
 
-        // The brief requires that only a user who has logged in
-        // successfully can reach the messaging menu, so an unsuccessful
-        // login stops the program here rather than falling through.
+        // Point 1 of Part 2: users may only send messages if they have
+        // logged in successfully, so a failed login stops the program here.
         if (!loginSuccessful) {
             System.out.println("Login failed - closing the application.");
             input.close();
@@ -91,10 +94,18 @@ public class NetworkHub {
         System.out.println();
         System.out.println("Welcome to QuickChat.");
 
-        // "running" controls the outer menu loop. It only becomes false
-        // once the user explicitly chooses Option 3 (Quit), as point 4
-        // of the brief requires - the application should keep running
-        // until the user asks to leave.
+        // Point 5 of the brief: the user decides how many messages they
+        // want to enter when the application starts, and may then only
+        // enter that many. This is asked ONCE, here, not every time the
+        // "Send Messages" option is chosen.
+        int messageLimit = readPositiveInteger(input,
+                "How many messages would you like to enter? ");
+
+        // Keeps track of how many of those messages have been entered so far.
+        int messagesEntered = 0;
+
+        // "running" controls the menu loop. It only becomes false when the
+        // user chooses Option 3 (Quit) - point 4 of the brief.
         boolean running = true;
 
         while (running) {
@@ -109,18 +120,31 @@ public class NetworkHub {
 
             switch (menuChoice) {
                 case 1:
-                    handleSendMessages(input);
+                    if (messagesEntered >= messageLimit) {
+                        System.out.println("You have already entered all "
+                                + messageLimit + " of your messages.");
+                    } else {
+                        messagesEntered += handleSendMessages(input,
+                                messagesEntered, messageLimit);
+
+                        // Brief: the total is displayed once all the
+                        // messages have been sent.
+                        System.out.println();
+                        System.out.println("Total messages sent: "
+                                + Message.returnTotalMessagess());
+                    }
                     break;
 
                 case 2:
-                    // This feature is still in development, so the
-                    // brief asks for a simple placeholder message
-                    // rather than an actual implementation here.
+                    // Still in development, so the brief asks for a
+                    // simple placeholder message.
                     System.out.println("Coming Soon.");
                     break;
 
                 case 3:
                     running = false;
+                    System.out.println("Total messages sent: "
+                            + Message.returnTotalMessagess());
                     System.out.println("Thank you for using QuickChat. Goodbye!");
                     break;
 
@@ -135,10 +159,9 @@ public class NetworkHub {
 
     /**
      * Safely reads the user's menu choice as an integer. If they type
-     * something that isn't a whole number (e.g. accidentally hit enter,
-     * or typed a letter), this returns -1 instead of crashing the
-     * program with a NumberFormatException - the calling code treats
-     * -1 as "not a valid option" and simply re-shows the menu.
+     * something that isn't a whole number, this returns -1 instead of
+     * crashing with a NumberFormatException; the caller treats -1 as
+     * "not a valid option" and simply asks again.
      */
     private static int readMenuChoice(Scanner input) {
         String rawInput = input.nextLine().trim();
@@ -150,57 +173,54 @@ public class NetworkHub {
     }
 
     /**
-     * Runs the full "Send Messages" flow: asks how many messages the
-     * user wants to compose this round (point 5 of the brief), then
-     * walks through composing, validating, and acting on each one in
-     * turn. Once every message in the batch has been dealt with, it
-     * prints the running total of messages sent so far (point 6).
+     * Walks the user through every message they still have left to enter.
+     *
+     * @param alreadyEntered how many messages were entered earlier
+     * @param messageLimit   the total the user said they wanted to enter
+     * @return how many messages were entered during this call
      */
-    private static void handleSendMessages(Scanner input) {
-        int numberOfMessages = readPositiveInteger(input,
-                "How many messages would you like to enter? ");
+    private static int handleSendMessages(Scanner input, int alreadyEntered,
+                                          int messageLimit) {
+        int enteredThisRound = 0;
 
-        for (int i = 1; i <= numberOfMessages; i++) {
+        for (int number = alreadyEntered + 1; number <= messageLimit; number++) {
             System.out.println();
-            System.out.println("--- Message " + i + " of " + numberOfMessages + " ---");
+            System.out.println("--- Message " + number + " of " + messageLimit + " ---");
 
             Message message = composeValidMessage(input);
 
-            int actionChoice = readSendChoice(input);
-            String resultMessage = message.sentMessage(actionChoice);
-            System.out.println(resultMessage);
+            // Confirms the randomly generated ID, as the brief requires.
+            System.out.println(message.returnMessageIDMessage());
 
-            // The brief asks for the full details of a message to be
-            // shown on screen once it has actually been sent (not
-            // stored or disregarded), in the order: ID, Hash, Recipient,
-            // Message.
+            int actionChoice = readSendChoice(input);
+            System.out.println(message.sentMessage(actionChoice));
+
+            // Point 7 of the brief: show the full details once a message
+            // has been SENT, in the order ID, Hash, Recipient, Message.
             if (actionChoice == 1) {
                 printMessageDetails(message);
             }
+
+            enteredThisRound++;
         }
 
-        // Once this whole batch has been processed, show the running
-        // total of everything sent so far in the program's lifetime.
-        System.out.println();
-        System.out.println("Total messages sent so far: " + Message.returnTotalMessagess());
+        return enteredThisRound;
     }
 
     /**
      * Repeatedly asks for a recipient number and message body until
      * both pass validation, printing the system's exact success or
-     * failure message at each attempt so the user knows what to fix.
-     * Returns a Message object that is guaranteed to be valid.
+     * failure message each time so the user knows what to fix.
+     * Returns a Message that is guaranteed to be valid.
      */
     private static Message composeValidMessage(Scanner input) {
         String recipient;
         Message candidateMessage;
 
-        // Keep asking for a recipient number until checkRecipientCell()
-        // is happy with it. A placeholder message body is used here
-        // purely so a Message object can be constructed to run the
-        // check; the real body is collected afterwards.
+        // Keep asking until checkRecipientCell() is happy. An empty body
+        // is used only so a Message exists to run the check on.
         while (true) {
-            System.out.print("Enter the recipient's cell number (with international code e.g +27680246587): ");
+            System.out.print("Enter the recipient's cell number (with international code): ");
             recipient = input.nextLine().trim();
 
             candidateMessage = new Message(recipient, "");
@@ -212,8 +232,7 @@ public class NetworkHub {
             }
         }
 
-        // Now that the recipient is valid, keep asking for message text
-        // until checkMessageLength() accepts it.
+        // Now keep asking for the text until checkMessageLength() accepts it.
         while (true) {
             System.out.print("Enter your message (250 characters or fewer): ");
             String messageText = input.nextLine();
@@ -231,15 +250,16 @@ public class NetworkHub {
     }
 
     /**
-     * Asks the user what to do with a fully composed message and keeps
-     * asking until they enter 1, 2 or 3.
+     * Asks what to do with the composed message, in the order the brief
+     * lists the options: 1 = Send, 2 = Disregard, 3 = Store.
+     * Keeps asking until the user enters 1, 2 or 3.
      */
     private static int readSendChoice(Scanner input) {
         while (true) {
             System.out.println("What would you like to do with this message?");
             System.out.println("1) Send Message");
-            System.out.println("2) Store Message to send later");
-            System.out.println("3) Disregard Message");
+            System.out.println("2) Disregard Message");
+            System.out.println("3) Store Message to send later");
             System.out.print("Enter your choice: ");
 
             int choice = readMenuChoice(input);
@@ -252,8 +272,7 @@ public class NetworkHub {
 
     /**
      * Keeps prompting until the user enters a whole number greater than
-     * zero, so the rest of the program never has to deal with a
-     * negative or zero message count.
+     * zero, so the rest of the program never sees a zero or negative count.
      */
     private static int readPositiveInteger(Scanner input, String prompt) {
         while (true) {
@@ -272,8 +291,8 @@ public class NetworkHub {
     }
 
     /**
-     * Prints a sent message's full details in the exact order the
-     * brief specifies: Message ID, Message Hash, Recipient, Message.
+     * Prints a sent message's full details in the order the brief
+     * specifies: Message ID, Message Hash, Recipient, Message.
      */
     private static void printMessageDetails(Message message) {
         System.out.println("Message ID: " + message.getMessageID());
