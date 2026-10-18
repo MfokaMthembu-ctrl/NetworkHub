@@ -200,7 +200,7 @@ public class NetworkHub {
         // purely so a Message object can be constructed to run the
         // check; the real body is collected afterwards.
         while (true) {
-            System.out.print("Enter the recipient's cell number (with international code): ");
+            System.out.print("Enter the recipient's cell number (with international code e.g +27680246587): ");
             recipient = input.nextLine().trim();
 
             candidateMessage = new Message(recipient, "");
