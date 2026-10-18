@@ -100,7 +100,47 @@ public class MessageTest {
     public void testDisregardMessageReturnsDeletePrompt() {
         Message message = new Message("08575975889",
                 "Hi Keegan, did you receive the payment?");
-        assertEquals("Press 0 to delete the message.", message.sentMessage(3));
+        // Option 2 = Disregard, as listed in the brief.
+        assertEquals("Press 0 to delete the message.", message.sentMessage(2));
+    }
+
+    @Test
+    public void testStoreMessageReturnsStoredMessage() {
+        Message message = new Message("+27718693002",
+                "Hi Mike, can you join us for dinner tonight?");
+        // Option 3 = Store. Note: this also appends to storedMessages.json.
+        assertEquals("Message successfully stored.", message.sentMessage(3));
+    }
+
+    // ---------- Message ID tests ----------
+
+    @Test
+    public void testMessageIDIsCreatedAndValid() {
+        Message message = new Message("+27718693002",
+                "Hi Mike, can you join us for dinner tonight?");
+        assertTrue(message.checkMessageID());
+        assertEquals("Message ID generated: " + message.getMessageID(),
+                message.returnMessageIDMessage());
+    }
+
+    // ---------- Hash loop test (remaining hashes) ----------
+
+    @Test
+    public void testMessageHashesInALoop() {
+        String[] texts = {
+            "Hi Mike, can you join us for dinner tonight?",
+            "Hi Keegan, did you receive the payment?",
+            "Where are you? You are late! I have asked you to be on time."
+        };
+        String[] expectedWords = {"HITONIGHT", "HIPAYMENT", "WHERETIME"};
+
+        for (int i = 0; i < texts.length; i++) {
+            // The ID starts "00" every time so the hash prefix is predictable.
+            Message message = new Message("+27718693002", texts[i], "00123456" + i + "9");
+            message.sentMessage(1); // sending increments the message number
+            // i is the message number this message was created with.
+            assertEquals("00:" + i + ":" + expectedWords[i], message.getMessageHash());
+        }
     }
 
     // ---------- Total messages sent ----------
@@ -111,7 +151,7 @@ public class MessageTest {
         sent.sentMessage(1); // counts
 
         Message disregarded = new Message("+27718693002", "Never mind");
-        disregarded.sentMessage(3); // does not count
+        disregarded.sentMessage(2); // disregarded, does not count
 
         assertEquals(1, Message.returnTotalMessagess());
     }
