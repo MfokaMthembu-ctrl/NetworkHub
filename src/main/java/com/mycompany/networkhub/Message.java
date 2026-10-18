@@ -225,7 +225,7 @@ public class Message {
      * where the hash gets generated and the shared send-history/counter
      * get updated - but only for messages that are actually sent.
      *
-     * @param choice 1 = Send Message, 2 = Store Message, 3 = Disregard Message
+     * @param choice 1 = Send Message, 2 = Store Message, 3 = Store Message
      * @return the message the system should display to the user
      */
     public String sentMessage(int choice) {
@@ -236,12 +236,12 @@ public class Message {
                 totalMessagesSent++;
                 return "Message successfully sent.";
 
-            case 2: // Store Message to send later
+            case 2: // Disregard Message
+                return "Press 0 to delete the message.";
+
+            case 3: // Store Message to send later
                 storeMessage();
                 return "Message successfully stored.";
-
-            case 3: // Disregard Message
-                return "Press 0 to delete the message.";
 
             default:
                 return "Invalid option selected; please choose 1, 2 or 3.";
