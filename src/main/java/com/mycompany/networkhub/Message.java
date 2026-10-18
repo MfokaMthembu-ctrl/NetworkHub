@@ -192,17 +192,7 @@ public class Message {
     //  HASH GENERATION
     // =========================================================
 
-    /**
-     * Builds the Message Hash the brief requires, in the format:
-     *
-     *     [first two digits of the message ID] : [this message's number] : [FIRSTLASTWORD]
-     *
-     * Example: message ID "0012345678", message number 0, and the text
-     * "Hi Mike, can you join us for dinner tonight?" produces the hash
-     * "00:0:HITONIGHT" - note the first and last words are joined
-     * directly together with no separator, in capitals, and with any
-     * punctuation (like the "?" after "tonight") stripped off first.
-     */
+   
     public String createMessageHash() {
         String idPrefix = messageID.substring(0, 2);
 

@@ -94,18 +94,14 @@ public class NetworkHub {
         System.out.println();
         System.out.println("Welcome to QuickChat.");
 
-        // Point 5 of the brief: the user decides how many messages they
-        // want to enter when the application starts, and may then only
-        // enter that many. This is asked ONCE, here, not every time the
-        // "Send Messages" option is chosen.
+        
         int messageLimit = readPositiveInteger(input,
                 "How many messages would you like to enter? ");
 
         // Keeps track of how many of those messages have been entered so far.
         int messagesEntered = 0;
 
-        // "running" controls the menu loop. It only becomes false when the
-        // user chooses Option 3 (Quit) - point 4 of the brief.
+        
         boolean running = true;
 
         while (running) {
@@ -136,7 +132,7 @@ public class NetworkHub {
                     break;
 
                 case 2:
-                    // Still in development, so the brief asks for a
+                    // Still in development, so the assignment asks for a
                     // simple placeholder message.
                     System.out.println("Coming Soon.");
                     break;
@@ -195,8 +191,7 @@ public class NetworkHub {
             int actionChoice = readSendChoice(input);
             System.out.println(message.sentMessage(actionChoice));
 
-            // Point 7 of the brief: show the full details once a message
-            // has been SENT, in the order ID, Hash, Recipient, Message.
+            
             if (actionChoice == 1) {
                 printMessageDetails(message);
             }
