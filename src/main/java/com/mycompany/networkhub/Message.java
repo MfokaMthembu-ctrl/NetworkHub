@@ -42,9 +42,7 @@ import java.util.regex.Pattern;
  */
 public class Message {
 
-    // =========================================================
-    //  THE FIVE ARRAYS FROM THE BRIEF (shared by the whole program)
-    // =========================================================
+
 
     /** Every message that has been SENT, in the order it was sent. */
     private static final List<Message> sentMessages = new ArrayList<>();
@@ -65,9 +63,7 @@ public class Message {
     /** The ID of every message that has been processed. */
     private static final List<String> messageIDs = new ArrayList<>();
 
-    // =========================================================
-    //  OTHER SHARED STATE
-    // =========================================================
+
 
     /**
      * How many messages have been SENT since the program started. This also
@@ -94,9 +90,7 @@ public class Message {
     private static final Pattern RECIPIENT_PATTERN =
             Pattern.compile("^\\+[0-9]{1,3}[0-9]{1,10}$");
 
-    // =========================================================
-    //  PER-MESSAGE STATE - unique to each individual Message object
-    // =========================================================
+ 
 
     private String messageID;    // ten-digit identifier, kept as a String so leading zeros survive
     private int messageNumber;   // this message's position in the hash (0-indexed)
@@ -159,9 +153,7 @@ public class Message {
         return id.toString();
     }
 
-    // =========================================================
-    //  GETTERS AND SETTINGS
-    // =========================================================
+
 
     public String getMessageID() {
         return messageID;
@@ -193,9 +185,7 @@ public class Message {
         storageFile = filePath;
     }
 
-    // =========================================================
-    //  VALIDATION METHODS
-    // =========================================================
+   
 
     /**
      * Confirms the message ID is no longer than ten characters, as the
@@ -244,9 +234,7 @@ public class Message {
         return "Message ready to send.";
     }
 
-    // =========================================================
-    //  HASH GENERATION
-    // =========================================================
+
 
     /**
      * Builds the Message Hash in the format:
@@ -254,7 +242,7 @@ public class Message {
      *     [first two digits of the message ID] : [message number] : [FIRSTLASTWORD]
      *
      * Example: ID "0012345678", message number 0 and the text
-     * "Hi Mike, can you join us for dinner tonight?" gives "00:0:HITONIGHT".
+     * "Hi Mlondi, can you join us for dinner tonight?" gives "00:0:HITONIGHT".
      * The first and last words are joined with no separator, in capitals,
      * with punctuation (like the "?" after "tonight") stripped off first.
      */
@@ -274,9 +262,7 @@ public class Message {
         return word.replaceAll("[^a-zA-Z0-9]", "");
     }
 
-    // =========================================================
-    //  SENDING, DISREGARDING AND STORING
-    // =========================================================
+    
 
     /**
      * Carries out whichever choice the user made for this message, files the
@@ -328,10 +314,7 @@ public class Message {
         saveStoredMessagesToFile();
     }
 
-    // =========================================================
-    //  READING THE ARRAYS (copies, so callers cannot change the originals)
-    // =========================================================
-
+ 
     /** The text of every sent message. */
     public static List<String> getSentMessages() {
         return textsOf(sentMessages);
@@ -365,9 +348,7 @@ public class Message {
         return texts;
     }
 
-    // =========================================================
-    //  STORED MESSAGES MENU FEATURES (2a - 2f in the brief)
-    // =========================================================
+
 
     /** 2a: lists the sender and recipient of every stored message. */
     public static String displaySenderAndRecipientOfStoredMessages() {
@@ -522,9 +503,7 @@ public class Message {
         return report.toString();
     }
 
-    // =========================================================
-    //  REPORTING ON SENT MESSAGES
-    // =========================================================
+
 
     /**
      * Returns the full details of every message sent so far this run, in the
@@ -551,9 +530,6 @@ public class Message {
         return totalMessagesSent;
     }
 
-    // =========================================================
-    //  JSON STORAGE (using the Gson library)
-    // =========================================================
 
     /**
      * A simple "plain data" copy of a stored message. Gson turns objects of
@@ -647,9 +623,7 @@ public class Message {
         return storedMessages.size();
     }
 
-    // =========================================================
-    //  TEST SUPPORT
-    // =========================================================
+ 
 
     /**
      * Empties every shared array and resets the counter, so each unit test
