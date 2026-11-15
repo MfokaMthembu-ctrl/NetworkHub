@@ -4,14 +4,17 @@
 
 package com.mycompany.networkhub;
 
+import java.util.List;
 import java.util.Scanner;
 
 /**
- * Driver class for the application. Covers two parts of the brief:
+ * Driver class for the application. Covers all three parts of the brief:
  *
  *   Part 1 - registering an account and logging in.
- *   Part 2 - once logged in, the QuickChat menu that lets the user
- *            compose, send, disregard or store messages.
+ *   Part 2 - the QuickChat menu that lets the user compose, send,
+ *            disregard or store messages.
+ *   Part 3 - the Stored Messages menu (display, search, delete and report)
+ *            built on the sent, disregarded and stored message arrays.
  *
  * @author Student
  */
@@ -79,8 +82,8 @@ public class NetworkHub {
         boolean loginSuccessful = login.loginUser(loginUsername, loginPassword);
         System.out.println(login.returnLoginStatus(loginSuccessful));
 
-        // Point 1 of Part 2: users may only send messages if they have
-        // logged in successfully, so a failed login stops the program here.
+        // Users may only send messages if they have logged in successfully,
+        // so a failed login stops the program here.
         if (!loginSuccessful) {
             System.out.println("Login failed - closing the application.");
             input.close();
@@ -94,14 +97,26 @@ public class NetworkHub {
         System.out.println();
         System.out.println("Welcome to QuickChat.");
 
-        
+        // Every message created from now on records the logged-in user as
+        // its sender.
+        Message.setCurrentSender(firstName + " " + lastName);
+
+        // Part 3: read any messages stored on a previous run from the JSON
+        // file back into the Stored Messages array.
+        int loadedCount = Message.loadStoredMessagesFromFile();
+        if (loadedCount > 0) {
+            System.out.println(loadedCount + " stored message(s) loaded from the JSON file.");
+        }
+
+        // The user decides how many messages to enter when the application
+        // starts (asked ONCE here) and may only enter that many.
         int messageLimit = readPositiveInteger(input,
                 "How many messages would you like to enter? ");
 
-        // Keeps track of how many of those messages have been entered so far.
+        // How many of those messages have been entered so far.
         int messagesEntered = 0;
 
-        
+        // The menu loop only stops when the user chooses Quit.
         boolean running = true;
 
         while (running) {
@@ -110,6 +125,7 @@ public class NetworkHub {
             System.out.println("1) Send Messages");
             System.out.println("2) Show recently sent messages");
             System.out.println("3) Quit");
+            System.out.println("4) Stored Messages");
             System.out.print("Enter your choice: ");
 
             int menuChoice = readMenuChoice(input);
@@ -123,8 +139,7 @@ public class NetworkHub {
                         messagesEntered += handleSendMessages(input,
                                 messagesEntered, messageLimit);
 
-                        // Brief: the total is displayed once all the
-                        // messages have been sent.
+                        // The total is displayed once all the messages are done.
                         System.out.println();
                         System.out.println("Total messages sent: "
                                 + Message.returnTotalMessagess());
@@ -132,9 +147,8 @@ public class NetworkHub {
                     break;
 
                 case 2:
-                    // Still in development, so the assignment asks for a
-                    // simple placeholder message.
-                    System.out.println("Coming Soon.");
+                    // Report of every message sent during this run.
+                    System.out.println(Message.printMessages());
                     break;
 
                 case 3:
@@ -144,14 +158,116 @@ public class NetworkHub {
                     System.out.println("Thank you for using QuickChat. Goodbye!");
                     break;
 
+                case 4:
+                    handleStoredMessagesMenu(input);
+                    break;
+
                 default:
-                    System.out.println("That isn't a valid option; please enter 1, 2 or 3.");
+                    System.out.println("That isn't a valid option; please enter 1, 2, 3 or 4.");
                     break;
             }
         }
 
         input.close();
     }
+
+    // =========================================================
+    //  PART 3 - STORED MESSAGES MENU
+    // =========================================================
+
+    /**
+     * The "Stored Messages" menu (main menu option 4). It keeps showing the
+     * sub-menu until the user chooses to go back to the main menu.
+     */
+    private static void handleStoredMessagesMenu(Scanner input) {
+        boolean backToMainMenu = false;
+
+        while (!backToMainMenu) {
+            System.out.println();
+            System.out.println("--- Stored Messages ---");
+            System.out.println("1) Display the sender and recipient of all stored messages");
+            System.out.println("2) Display the longest stored message");
+            System.out.println("3) Search for a message ID");
+            System.out.println("4) Search for all messages for a particular recipient");
+            System.out.println("5) Delete a message using its message hash");
+            System.out.println("6) Display a report of all stored messages");
+            System.out.println("7) Back to the main menu");
+            System.out.print("Enter your choice: ");
+
+            int choice = readMenuChoice(input);
+
+            switch (choice) {
+                case 1:
+                    System.out.println(Message.displaySenderAndRecipientOfStoredMessages());
+                    break;
+
+                case 2:
+                    System.out.println(Message.getLongestStoredMessage());
+                    break;
+
+                case 3:
+                    searchByMessageID(input);
+                    break;
+
+                case 4:
+                    searchByRecipient(input);
+                    break;
+
+                case 5:
+                    System.out.print("Enter the message hash to delete: ");
+                    String hash = input.nextLine();
+                    System.out.println(Message.deleteMessageByHash(hash));
+                    break;
+
+                case 6:
+                    System.out.println(Message.displayStoredMessagesReport());
+                    break;
+
+                case 7:
+                    backToMainMenu = true;
+                    break;
+
+                default:
+                    System.out.println("That isn't a valid option; please enter a number from 1 to 7.");
+                    break;
+            }
+        }
+    }
+
+    /** Asks for a message ID and shows the matching recipient and message. */
+    private static void searchByMessageID(Scanner input) {
+        System.out.print("Enter the message ID to search for: ");
+        String id = input.nextLine();
+
+        Message found = Message.findMessageByID(id);
+
+        if (found == null) {
+            System.out.println("No message was found with that ID.");
+        } else {
+            System.out.println("Recipient: " + found.getRecipient());
+            System.out.println("Message: " + found.getMessageText());
+        }
+    }
+
+    /** Asks for a recipient and shows every sent or stored message for them. */
+    private static void searchByRecipient(Scanner input) {
+        System.out.print("Enter the recipient's cell number: ");
+        String recipient = input.nextLine();
+
+        List<String> matches = Message.searchMessagesByRecipient(recipient);
+
+        if (matches.isEmpty()) {
+            System.out.println("No messages were found for that recipient.");
+        } else {
+            for (String text : matches) {
+                System.out.println("\"" + text + "\"");
+            }
+        }
+    }
+
+    // =========================================================
+    //  PART 2 HELPERS
+    // =========================================================
 
     /**
      * Safely reads the user's menu choice as an integer. If they type
@@ -191,7 +307,7 @@ public class NetworkHub {
             int actionChoice = readSendChoice(input);
             System.out.println(message.sentMessage(actionChoice));
 
-            
+            // Show the full details only if the message was actually SENT.
             if (actionChoice == 1) {
                 printMessageDetails(message);
             }
@@ -203,17 +319,17 @@ public class NetworkHub {
     }
 
     /**
-     * Repeatedly asks for a recipient number and message body until
-     * both pass validation, printing the system's exact success or
-     * failure message each time so the user knows what to fix.
-     * Returns a Message that is guaranteed to be valid.
+     * Repeatedly asks for a recipient number and message body until both
+     * pass validation, printing the system's exact success or failure
+     * message each time so the user knows what to fix. Returns a Message
+     * that is guaranteed to be valid.
      */
     private static Message composeValidMessage(Scanner input) {
         String recipient;
         Message candidateMessage;
 
-        // Keep asking until checkRecipientCell() is happy. An empty body
-        // is used only so a Message exists to run the check on.
+        // Keep asking until checkRecipientCell() is happy. An empty body is
+        // used only so a Message exists to run the check on.
         while (true) {
             System.out.print("Enter the recipient's cell number (with international code): ");
             recipient = input.nextLine().trim();
