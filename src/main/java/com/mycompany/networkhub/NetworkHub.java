@@ -23,9 +23,7 @@ public class NetworkHub {
     public static void main(String[] args) {
         Scanner input = new Scanner(System.in);
 
-        // =====================================================
-        //  PART 1 - REGISTRATION AND LOGIN
-        // =====================================================
+
 
         System.out.println("=== Register a new account ===");
 
@@ -90,9 +88,7 @@ public class NetworkHub {
             return;
         }
 
-        // =====================================================
-        //  PART 2 - THE QUICKCHAT MENU
-        // =====================================================
+  
 
         System.out.println();
         System.out.println("Welcome to QuickChat.");
@@ -171,9 +167,7 @@ public class NetworkHub {
         input.close();
     }
 
-    // =========================================================
-    //  PART 3 - STORED MESSAGES MENU
-    // =========================================================
+  
 
     /**
      * The "Stored Messages" menu (main menu option 4). It keeps showing the
@@ -265,9 +259,6 @@ public class NetworkHub {
         }
     }
 
-    // =========================================================
-    //  PART 2 HELPERS
-    // =========================================================
 
     /**
      * Safely reads the user's menu choice as an integer. If they type
