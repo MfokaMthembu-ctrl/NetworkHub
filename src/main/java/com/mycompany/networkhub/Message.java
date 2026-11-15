@@ -136,7 +136,7 @@ public class Message {
         this.messageText = (messageText == null) ? "" : messageText;
         this.messageID = messageID;
         this.messageHash = messageHash;
-        this.messageNumber = 0;
+        this.messageNumber = 0
     }
 
     /**
